@@ -248,6 +248,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentView, setView, setSelecte
                 Dashboard
               </button>
             )}
+            <button
+              onClick={() => navigateTo('install-app')}
+              className="w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium hover:bg-indigo-50/40 text-indigo-600 font-bold"
+            >
+              Install Mobile App 📱
+            </button>
             {user?.role === 'admin' && (
               <button
                 onClick={() => navigateTo('admin')}

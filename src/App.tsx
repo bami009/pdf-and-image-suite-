@@ -9,6 +9,8 @@ import { Dashboard } from './views/Dashboard';
 import { AdminPanel } from './views/AdminPanel';
 import { ToolLayout } from './components/ToolLayout';
 import { ToolDefinition } from './types';
+import { BottomNavigation } from './components/BottomNavigation';
+import { InstallPWA } from './views/InstallPWA';
 
 const toolsList: ToolDefinition[] = [
   {
@@ -142,7 +144,7 @@ function AppContent() {
       />
 
       {/* Main viewport area */}
-      <main className="flex-1">
+      <main className="flex-1 pb-20 md:pb-0">
         {view === 'landing' && (
           <LandingPage 
             onSelectTool={(tool) => {
@@ -158,6 +160,8 @@ function AppContent() {
         
         {view === 'admin' && <AdminPanel />}
 
+        {view === 'install-app' && <InstallPWA />}
+
         {view === 'tool' && selectedTool && (
           <ToolLayout 
             tool={selectedTool} 
@@ -170,8 +174,17 @@ function AppContent() {
         )}
       </main>
 
-      {/* Footer */}
-      <Footer 
+      {/* Footer - Hidden on mobile viewports as bottom tabs take precedence */}
+      <div className="hidden md:block">
+        <Footer 
+          setView={setView} 
+          setSelectedToolId={handleSelectToolId} 
+        />
+      </div>
+
+      {/* Mobile-Only Bottom Navigation Shell */}
+      <BottomNavigation 
+        currentView={view} 
         setView={setView} 
         setSelectedToolId={handleSelectToolId} 
       />
