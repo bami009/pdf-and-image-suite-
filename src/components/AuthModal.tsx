@@ -39,11 +39,17 @@ export const AuthModal: React.FC = () => {
       await signInWithPopup(auth, googleProvider);
       handleClose();
     } catch (err: any) {
-      console.error(err);
+      console.error("Google Auth Error:", err);
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Sign-in cancelled (popup was closed).');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('Google Sign-In is not enabled yet in your Firebase Project. Please open your Firebase Console -> Authentication -> Sign-in Method, and enable the "Google" provider.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError(`Unauthorized Domain: ${window.location.hostname} is not whitelisted in your Firebase Project. Please go to Firebase Console -> Authentication -> Settings -> Authorized Domains, and add this domain.`);
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('Google login popup was blocked by your browser. Please allow popups for this site, or open this application in a new tab to sign in.');
       } else {
-        setError(err.message || 'Failed to authenticate with Google');
+        setError(err.message || 'Failed to authenticate with Google. Ensure Google Sign-In is enabled in your Firebase Project.');
       }
     } finally {
       setLoading(false);
