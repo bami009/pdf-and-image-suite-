@@ -1,0 +1,6 @@
+{
+  "name": "PDF & Image Suite",
+  "description": "A modern, professional SaaS platform offering powerful tools for merging, splitting, compressing, and converting PDFs and images, complete with user subscriptions, authentication, and an administrative dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
