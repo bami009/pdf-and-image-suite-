@@ -2,15 +2,15 @@
 
 This guide describes how to activate and configure **Google Sign-In via Firebase Authentication** for your launched web application and Capacitor mobile applications.
 
-The **frontend code is already 100% complete** and wired up! No further changes are needed in your codebase. You just need to activate the service inside your Firebase & Google Cloud Consoles.
+The frontend uses the Firebase web SDK in a browser and native Firebase Google Sign-In in Capacitor Android/iOS builds. You must still complete the Firebase and native-platform configuration below.
 
 ---
 
 ## 1. Google Auth Implementation in the Code
 
 Your codebase is already fully implemented with Firebase Google Authentication:
-- **Initialization**: `/src/lib/firebase.ts` initializes the standard `GoogleAuthProvider` and exports it as `googleProvider`.
-- **Sign-In Action**: `/src/components/AuthModal.tsx` imports `signInWithPopup` and triggers it via the Google button using `signInWithPopup(auth, googleProvider)`.
+- **Initialization**: `/src/lib/firebase.ts` initializes browser persistence for web and IndexedDB persistence for native Capacitor apps.
+- **Sign-In Action**: `/src/lib/firebase.ts` uses Firebase's native Google SDK on Android/iOS, then signs the JavaScript SDK into the same Firebase account so Firestore continues to work. Browsers retain the standard `signInWithPopup` flow.
 - **State Observer**: `/src/context/AppContext.tsx` listens to state changes via `onAuthStateChanged`, automatically synchronizes the new Google user with your Firestore `users` collection, and sets their standard usage tier.
 
 ---
@@ -55,34 +55,32 @@ Sometimes, Google Authentication requires configuring user permissions in the [G
 
 ## 4. Configuring Google Auth for Capacitor Mobile App
 
-If you are running the app on a mobile device (iOS/Android) via the Capacitor package we installed, you have two choices for Google Sign-In:
+The app now uses `@capacitor-firebase/authentication` for native Google Sign-In on Android and iOS, while continuing to use a popup in desktop/mobile browsers.
 
-### Option A: Standard Firebase Popup (Using `signInWithRedirect`)
-If you want to keep the configuration 100% client-side without adding extra plugins, update your `AuthModal.tsx` to use `signInWithRedirect` instead of `signInWithPopup` on mobile, since popups are often blocked or fail in mobile webviews:
+### Android
+1. Run `npm install` and then `npx cap add android` (once) or `npx cap sync android` (after changes).
+2. In Firebase Console → Project settings → Your apps, register an Android app with package name `com.pdfimagesuite.app` and download `google-services.json` into `android/app/`.
+3. Add your Android app's SHA-1 fingerprint in the Firebase Android app settings. In Android Studio's terminal, run `./gradlew signingReport` from the `android` folder to obtain it.
+4. In `android/variables.gradle`, inside `ext { ... }`, add:
 
-```typescript
-import { signInWithRedirect, signInWithPopup } from 'firebase/auth';
-
-const handleGoogleSignIn = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const isMobile = /iphone|ipad|ipod|android/i.test(navigator.userAgent);
-    if (isMobile) {
-      await signInWithRedirect(auth, googleProvider);
-    } else {
-      await signInWithPopup(auth, googleProvider);
-    }
-  } catch (err: any) {
-    // Error Handling
-  }
-};
+```gradle
+rgcfaIncludeGoogle = true
+androidxCredentialsVersion = '1.3.0'
 ```
 
-### Option B: Native Google Sign-In (Best Experience)
-For a premium experience that uses the phone's native Google Sign-In manager, you can install the official Capacitor community plugin:
-1. Run: `npm install @capacitor-community/google-active-signin`
-2. Follow their native configuration for Android (`google-services.json`) and iOS (`GoogleService-Info.plist`).
+5. Run `npx cap sync android`, then build and test on a device.
+
+### iOS
+1. Run `npm install` and then `npx cap add ios` (once) or `npx cap sync ios` (after changes).
+2. Register the iOS app in Firebase using bundle ID `com.pdfimagesuite.app`, then add `GoogleService-Info.plist` to the Xcode App target.
+3. With CocoaPods, add this line inside the `App` target in `ios/App/Podfile`:
+
+```ruby
+pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'
+```
+
+4. In Xcode, add the `REVERSED_CLIENT_ID` value from `GoogleService-Info.plist` as a URL scheme under the App target's **Info → URL Types**.
+5. Run `npx cap sync ios`, then build and test on a device.
 
 ---
 

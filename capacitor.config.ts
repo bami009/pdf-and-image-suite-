@@ -12,6 +12,11 @@ const config: CapacitorConfig = {
     ]
   },
   plugins: {
+    FirebaseAuthentication: {
+      // Use Firebase's native Google sign-in SDK on Android and iOS.
+      providers: ['google.com'],
+      skipNativeAuth: false
+    },
     SplashScreen: {
       launchShowDuration: 2000,
       backgroundColor: '#4f46e5',
